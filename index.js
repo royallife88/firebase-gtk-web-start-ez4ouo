@@ -1,52 +1,102 @@
-// Import stylesheets
-import './style.css';
-// Firebase App (the core Firebase SDK) is always required
-import { initializeApp } from 'firebase/app';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
 
-// Add the Firebase products and methods that you want to use
-import {} from 'firebase/auth';
-import {} from 'firebase/firestore';
+import {
+  getDatabase,
+  ref,
+  push,
+  set,
+  get,
+  update,
+} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
 
-import * as firebaseui from 'firebaseui';
+const firebaseConfig = {
+  apiKey: "AIzaSyA_e9vc8FFFRqV6Xy3HTaOoKznhTvRN6jY",
+  authDomain: "omeal-c7454.firebaseapp.com",
+  databaseURL: "https://omeal-c7454-default-rtdb.firebaseio.com",
+  projectId: "omeal-c7454",
+  storageBucket: "omeal-c7454.appspot.com",
+  messagingSenderId: "64609571512",
+  appId: "1:64609571512:web:303253a17213cb5b0c9a4d",
+  measurementId: "G-R2SY23Z4GX",
+};
 
-// Document elements
-const startRsvpButton = document.getElementById('startRsvp');
-const guestbookContainer = document.getElementById('guestbook-container');
+const firebaseApp = initializeApp(firebaseConfig);
 
-const form = document.getElementById('leave-message');
-const input = document.getElementById('message');
-const guestbook = document.getElementById('guestbook');
-const numberAttending = document.getElementById('number-attending');
-const rsvpYes = document.getElementById('rsvp-yes');
-const rsvpNo = document.getElementById('rsvp-no');
+const db = getDatabase(firebaseApp);
 
-let rsvpListener = null;
-let guestbookListener = null;
+const ordersRef = ref(db, "orders");
+get(ordersRef).then((snapshot) => {
+  if (snapshot.exists()) {
+    const orders = snapshot.val();
 
-let db, auth;
+    const ordersTable = document.querySelector(".orders-table");
 
-async function main() {
-  // Add Firebase project configuration object here
-  const firebaseConfig = {};
+    for (let key in orders) {
+      let order = orders[key];
+      let itemList = order.itemList;
+      //get array values
+      let items = Object.values(itemList);
+    
+      const orderRow = document.createElement("tr");
+      orderRow.setAttribute("data-id", key);
+      orderRow.innerHTML = `
+      <td>${order.date} ${order.time}</td>
+      <td>${order.userName}</td>
+      <td>
+      ${items.map((item) => `<p>${item.quantity} ${item.name} - $${item.price}</p>`).join("")}
 
-  // initializeApp(firebaseConfig);
+      </td>
+      <td>${order.total}</td>
+      <td>${order.address}</td>
+      <td>
+        <select class="order-status form-control">
+          <option ${
+            order.status == "Pending" ? "selected" : ""
+          } value="Pending">Pending</option>
+          <option ${
+            order.status == "Processing" ? "selected" : ""
+          } value="Processing">Processing</option>
+          <option ${
+            order.status == "Cancelled" ? "selected" : ""
+          } value="Cancelled">Cancelled</option>
+          <option ${
+            order.status == "Delivered" ? "selected" : ""
+          } value="Delivered">Delivered</option>
+        </select>
 
-  // FirebaseUI config
-  const uiConfig = {
-    credentialHelper: firebaseui.auth.CredentialHelper.NONE,
-    signInOptions: [
-      // Email / Password Provider.
-      EmailAuthProvider.PROVIDER_ID,
-    ],
-    callbacks: {
-      signInSuccessWithAuthResult: function (authResult, redirectUrl) {
-        // Handle sign-in.
-        // Return false to avoid redirect.
-        return false;
-      },
-    },
-  };
+      </td>
+      `;
+      ordersTable.appendChild(orderRow);
+    }
+  } else {
+    console.log("No data available");
+  }
+});
 
-  // const ui = new firebaseui.auth.AuthUI(auth);
-}
-main();
+//update order status
+const ordersTable = document.querySelector(".orders-table");
+ordersTable.addEventListener("change", (e) => {
+  if (e.target.classList.contains("order-status")) {
+    const orderId =
+      e.target.parentElement.parentElement.getAttribute("data-id");
+    const orderStatus = e.target.value;
+    const orderRef = ref(db, "orders/" + orderId);
+
+    //update only status property and show success message
+    update(orderRef, {
+      status: orderStatus,
+    })
+      .then(() => {
+        $(".order_success_alert").show();
+        setTimeout(() => {
+          $(".order_success_alert").hide();
+        }, 3000);
+      })
+      .catch((error) => {
+        $(".order_error_alert").show();
+        setTimeout(() => {
+          $(".order_error_alert").hide();
+        }, 3000);
+      });
+  }
+});

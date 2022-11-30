@@ -14,9 +14,54 @@
     href="https://fonts.googleapis.com/icon?family=Material+Icons"
     rel="stylesheet"
   />
+
+  <link
+    rel="stylesheet"
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+  />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script type="module" src="./index.js"></script>
+
+  <style>
+    .hide{
+      display: none;
+    }
+  </style>
 </head>
 
 <body>
-  <div id="app"></div>
+  <div id="app">
+   <div class="container mt-4">
+    <h3>Order List</h3>
+
+    <div class="alert alert-success order_success_alert hide" role="alert">
+      Order status updated successfully!
+    </div>
+    <div class="alert alert-success order_error_alert hide" role="alert">
+     Something went wrong!
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Username</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Address</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody class="orders-table">
+          </tbody>
+        </table>
+      </div>
+   </div>
+   
+
+  </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
 </body>
